@@ -1,0 +1,5 @@
+gcc-microblaze (10.2.0-2021-0623) stable; urgency=medium
+
+  * Update, based on Xilinx 2021-0623 sources
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Sun, 24 Oct 2021 23:38:18 +0300

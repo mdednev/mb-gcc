@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  # only remove in remove/deconfigure so we don't disrupt users' preferences
+  remove|deconfigure)
+    update-alternatives --quiet --remove \
+        gcc-microblaze-xilinx-elf-lib \
+        /usr/lib/microblaze-xilinx-elf/newlib
+    ;;
+
+  upgrade|failed-upgrade)
+    ;;
+
+  *)
+    echo "prerm called with unknown argument \`$1'" >&2
+    exit 0
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

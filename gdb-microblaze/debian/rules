@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+
+target=microblaze-xilinx-elf
+
+package=gdb-microblaze
+top_dir=$(shell pwd)
+gdb_dir=$(shell pwd)/..
+stampdir=debian/stamp
+
+deb_version := $(shell dpkg-parsechangelog | sed -ne "s/^Version: \(.*\)/\1/p")
+deb_upstream_version := $(shell echo $(deb_version) | cut -d- -f1)
+base_version := $(shell echo $(deb_version) | sed -e 's/\([1-9]\.[0-9]\).*-.*/\1/')
+
+upstream_dir=gdb
+src_dir=$(upstream_dir)
+build_dir=build
+
+unpack_stamp=$(stampdir)/unpack
+
+export DEB_CFLAGS_APPEND   = -I$(top_dir)/../prerequisites/host-libs/zlib/include
+export DEB_CPPFLAGS_APPEND = -I$(top_dir)/../prerequisites/host-libs/zlib/include
+export DEB_LDFLAGS_APPEND  = -L$(top_dir)/../prerequisites/host-libs/zlib/lib \
+                             -L$(top_dir)/../prerequisites/host-libs/usr/lib
+
+buildflags=$(shell dpkg-buildflags --export=configure)
+
+configure_flags = \
+	--target=$(target) \
+	--exec-prefix=\$${prefix}/lib \
+	--bindir=\$${prefix}/bin \
+	--infodir=\$${prefix}/share/doc/$(package)/info \
+	--htmldir=\$${prefix}/share/doc/$(package)/html \
+	--pdfdir=\$${prefix}/share/doc/$(package)/pdf \
+	--disable-nls \
+	--disable-sim \
+	--disable-gas \
+	--disable-binutils \
+	--disable-ld \
+	--disable-gprof \
+	--with-libexpat \
+	--with-lzma=no \
+	--with-python=yes \
+	--with-system-gdbinit=\$${prefix}/lib/microblaze-xilinx-elf/lib/gdbinit \
+	--with-libexpat-prefix=$(top_dir)/../prerequisites/host-libs/usr \
+	--with-gdb-datadir=\$${prefix}/lib/microblaze-xilinx-elf/share/gdb \
+	"--with-pkgversion=$(deb_version)" \
+	$(buildflags)
+
+%:
+	dh $@ -D$(src_dir) -B$(build_dir) --with autotools-dev
+
+$(unpack_stamp):
+	tar xf $(gdb_dir)/gdb.tar.*
+	mkdir -p $(stampdir)
+	touch $@
+
+override_dh_auto_configure: $(unpack_stamp)
+	mkdir -p $(build_dir)
+	dh_auto_configure -D$(src_dir) -B$(build_dir) -- $(configure_flags)
+
+override_dh_auto_clean:
+	if [ -d $(src_dir) ]; then dh_auto_clean -D$(src_dir) -B$(build_dir); fi
+	rm -rf $(src_dir) $(build_dir) $(stampdir) debian/tmp testrun.*
+
+override_dh_auto_test:
+	# The test cases doesn't pass using sim as target
+
+override_dh_gencontrol:
+	dh_gencontrol -a -- -v$(deb_version) -Vlocal:Version=$(deb_upstream_version) -Vgdb:Version=$(source_version) -VBuilt-Using="$(BUILT_USING)"
+
+override_dh_auto_install:
+	mkdir -p $(top_dir)/debian/tmp
+	cd build && make install DESTDIR=$(top_dir)/debian/tmp
+	rm -f $(top_dir)/debian/tmp/usr/share/man/man1/*
+	rm -f $(top_dir)/debian/tmp/usr/share/man/man5/*
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(upstream_dir)/ChangeLog
+
+override_dh_strip:
+	dh_strip -X.a

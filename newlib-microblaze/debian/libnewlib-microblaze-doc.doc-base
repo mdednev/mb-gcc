@@ -1,0 +1,11 @@
+Document: libnewlib-reference-manual
+Title: The Red Hat newlib C Library
+Author: Red Hat
+Abstract: This reference manual describes the functions provided by the Red Hat
+ "newlib" version of the standard ANSI C library
+Section: Programming/C
+
+Format: HTML
+Index: /usr/share/doc/libnewlib-doc/libc.html/index.html
+Files: /usr/share/doc/libnewlib-doc/libc.html/*
+ /usr/share/doc/libnewlib-doc/libm.html/*

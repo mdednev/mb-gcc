@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+update-alternatives --quiet --install \
+    /usr/lib/microblaze-xilinx-elf/include \
+    gcc-microblaze-xilinx-elf-include \
+    /usr/include/newlib-microblaze-xilinx-elf 30
+
+#DEBHELPER#
+
+exit 0

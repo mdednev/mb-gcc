@@ -1,0 +1,139 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+
+top_dir=$(shell pwd)
+newlib_dir=$(shell pwd)/..
+stampdir=debian/stamp
+unpack_stamp=$(stampdir)/unpack
+
+upstream_dir=newlib
+src_dir=$(upstream_dir)
+
+DEB_HOST_MULTIARCH := $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+PACKAGE_NAME := $(shell dpkg-parsechangelog | sed -n -e's/^Source: \(.*\)\+/\1/p')
+DVERSION := $(shell dpkg-parsechangelog | grep ^Version | sed -e 's/^Version: //')
+UVERSION := $(shell echo $(DVERSION) | cut -d- -f1)
+P_SRC := debian/newlib-source
+TARGET := microblaze-xilinx-elf
+
+TOP_DIR := $(shell pwd)
+BUILD_DIR := $(TOP_DIR)/build/
+BUILD_NANO_DIR := $(TOP_DIR)/build_nano/
+TMP_DIR := debian/tmp
+TMP_NANO_DIR := debian/tmp_nano
+
+CFLAGS := CFLAGS="-g -O2 -ffunction-sections -fdata-sections"
+CFLAGS_NANO := CFLAGS="-g -Os -ffunction-sections -fdata-sections"
+
+TARGET_TOOLS =  \
+	CC_FOR_TARGET=$(TARGET)-gcc \
+	GCC_FOR_TARGET=$(TARGET)-gcc \
+	AR_FOR_TARGET=$(TARGET)-ar \
+	AS_FOR_TARGET=$(TARGET)-as \
+	LD_FOR_TARGET=$(TARGET)-ld \
+	NM_FOR_TARGET=$(TARGET)-nm \
+	OBJDUMP_FOR_TARGET=$(TARGET)-objdump \
+	RANLIB_FOR_TARGET=$(TARGET)-ranlib \
+	READELF_FOR_TARGET=$(TARGET)-readelf \
+	STRIP_FOR_TARGET=$(TARGET)-strip
+
+CONFIGURE_FLAGS = \
+	--host=$(DEB_HOST_MULTIARCH) \
+	--target=$(TARGET) \
+	--prefix=/usr/lib \
+	--libdir=/usr/lib \
+	--infodir=/usr/share/doc/$(PACKAGE_NAME)/info \
+	--mandir=/usr/share/man \
+	--htmldir=/usr/share/doc/$(PACKAGE_NAME)/html \
+	--pdfdir=/usr/share/doc/$(PACKAGE_NAME)/pdf \
+	--with-pkgversion=$(DVERSION) \
+	--enable-newlib-io-long-long \
+	--enable-newlib-io-c99-formats \
+	--enable-newlib-reent-check-verify \
+	--enable-newlib-register-fini \
+	--enable-newlib-retargetable-locking \
+	--disable-newlib-supplied-syscalls \
+	--disable-nls \
+	$(CFLAGS) \
+	$(TARGET_TOOLS)
+
+CONFIGURE_FLAGS_NANO = \
+	--host=$(DEB_HOST_MULTIARCH) \
+	--target=$(TARGET) \
+	--prefix=/usr/lib \
+	--libdir=/usr/lib \
+	--infodir=/usr/share/doc/$(PACKAGE_NAME)/info \
+	--mandir=/usr/share/man \
+	--htmldir=/usr/share/doc/$(PACKAGE_NAME)/html \
+	--pdfdir=/usr/share/doc/$(PACKAGE_NAME)/pdf \
+	--with-pkgversion=$(DVERSION) \
+	--disable-newlib-supplied-syscalls    \
+        --enable-newlib-reent-check-verify    \
+        --enable-newlib-reent-small           \
+        --enable-newlib-retargetable-locking  \
+        --disable-newlib-fvwrite-in-streamio  \
+        --disable-newlib-fseek-optimization   \
+        --disable-newlib-wide-orient          \
+        --enable-newlib-nano-malloc           \
+        --disable-newlib-unbuf-stream-opt     \
+        --enable-lite-exit                    \
+        --enable-newlib-global-atexit         \
+        --enable-newlib-nano-formatted-io     \
+        --disable-nls \
+	$(CFLAGS_NANO) \
+	$(TARGET_TOOLS)
+
+%:
+	dh $@ -D$(src_dir) -B$(BUILD_DIR) --with autotools-dev --parallel --with autoreconf
+
+$(unpack_stamp):
+	tar xf $(newlib_dir)/newlib.tar.*
+	mkdir -p $(stampdir)
+	touch $@
+
+override_dh_autoreconf: $(unpack_stamp)
+	@echo "do not reconfigure with autoconf, that's way too painful"
+#	autoreconf2.64 -f -i $(src_dir)
+
+override_dh_auto_clean:
+	rm -rf $(src_dir) $(BUILD_DIR) $(BUILD_NANO_DIR) $(TMP_NANO_DIR) $(P_SRC) $(stampdir)
+	dh_autoreconf_clean
+
+override_dh_auto_configure: $(unpack_stamp)
+	dh_auto_configure -D$(src_dir) -B$(BUILD_DIR) -- $(CONFIGURE_FLAGS)
+	dh_auto_configure -D$(src_dir) -B$(BUILD_NANO_DIR) -- $(CONFIGURE_FLAGS_NANO)
+
+override_dh_auto_test:
+	@echo "no testing, that's way too painful"
+#	dh_auto_test -D$(src_dir) -B$(BUILD_DIR)
+#	dh_auto_test -D$(src_dir) -B$(BUILD_NANO_DIR)
+
+override_dh_auto_build:
+	dh_auto_build -D$(src_dir) -B$(BUILD_DIR)
+	dh_auto_build -D$(src_dir) -B$(BUILD_NANO_DIR)
+
+override_dh_auto_install:
+	dh_auto_install -B$(BUILD_DIR) --max-parallel=1
+	dh_auto_install -B$(BUILD_NANO_DIR) --destdir debian/tmp_nano --max-parallel=1
+	#
+	# Rename nano lib* files to lib*_nano
+	find $(TMP_NANO_DIR) -regex ".*/lib\(c\|g\|rdimon\)\.a" \
+		-exec rename 's@$(TMP_NANO_DIR)/(.*).a@$(TMP_DIR)/$$1_nano.a@' \{\} \+
+	#
+	# Build newlib-source package
+	mkdir -p $(P_SRC)/usr/src/newlib
+	cp ../newlib.tar.* $(P_SRC)/usr/src/newlib/newlib-$(UVERSION).tar.bz2
+	[ -d debian/patches ] && cp -r debian/patches $(P_SRC)/usr/src/newlib/patches || true
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(src_dir)/ChangeLog
+
+override_dh_installdocs:
+	set -ex; \
+		cd $(BUILD_DIR)/$(TARGET)/newlib; \
+		make html-recursive; \
+		cd -;
+	dh_installdocs

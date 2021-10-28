@@ -1,0 +1,135 @@
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+
+target=microblaze-xilinx-elf
+
+MULTILIB_LIST=""
+
+package=gcc-microblaze-bootstrap
+top_dir=$(shell pwd)
+gcc_dir=$(shell pwd)/..
+stampdir=debian/stamp
+
+deb_version := $(shell dpkg-parsechangelog | sed -ne "s/^Version: \(.*\)/\1/p")
+deb_upstream_version := $(shell echo $(deb_version) | cut -d- -f1)
+base_version := $(shell echo $(deb_version) | sed -e 's/\([1-9]\.[0-9]\).*-.*/\1/')
+
+upstream_dir=gcc
+src_dir=$(upstream_dir)
+build_dir=build
+
+unpack_stamp=$(stampdir)/unpack
+tar_stamp=$(stampdir)/tar
+
+export DEB_CFLAGS_APPEND   = -I$(top_dir)/../prerequisites/host-libs/zlib/include
+export DEB_CPPFLAGS_APPEND = -I$(top_dir)/../prerequisites/host-libs/zlib/include
+export DEB_LDFLAGS_APPEND  = -L$(top_dir)/../prerequisites/host-libs/zlib/lib \
+                             -L$(top_dir)/../prerequisites/host-libs/usr/lib
+
+export DEB_BUILD_MAINT_OPTIONS=hardening=-format,-stackprotectorstrong
+buildflags=$(dpkg-buildflags --export=configure) INHIBIT_LIBC_CFLAGS="-DUSE_TM_CLONE_REGISTRY=0"
+
+target_tools=\
+	AR_FOR_TARGET=$(target)-ar \
+	AS_FOR_TARGET=$(target)-as \
+	LD_FOR_TARGET=$(target)-ld \
+	NM_FOR_TARGET=$(target)-nm \
+	OBJDUMP_FOR_TARGET=$(target)-objdump \
+	RANLIB_FOR_TARGET=$(target)-ranlib \
+	READELF_FOR_TARGET=$(target)-readelf \
+	STRIP_FOR_TARGET=$(target)-strip
+
+configure_flags = \
+	--build=$(DEB_BUILD_GNU_TYPE) \
+	--host=$(DEB_HOST_GNU_TYPE) \
+	--target=$(target) \
+	--prefix=/usr/lib \
+	--infodir=/usr/share/doc/$(package)/info \
+	--mandir=/usr/share/man \
+	--htmldir=/usr/share/doc/$(package)/html \
+	--pdfdir=/usr/share/doc/$(package)/pdf \
+	--bindir=/usr/bin \
+	--libexecdir=/usr/lib \
+	--libdir=/usr/lib \
+	--enable-languages=c \
+	--disable-__cxa_atexit \
+	--enable-lto \
+	--enable-target-optspace \
+	--without-long-double-128 \
+	--disable-decimal-float \
+	--disable-libffi \
+	--disable-libgomp \
+	--disable-libmudflap \
+	--disable-libquadmath \
+	--disable-libssp \
+	--disable-libstdcxx-pch \
+	--disable-nls \
+	--disable-shared \
+	--disable-threads \
+	--disable-tls \
+	--with-newlib \
+	--without-headers \
+	--with-gnu-as \
+	--with-gnu-ld \
+	--with-python-dir=share/gcc-arm-none-eabi \
+	--with-gmp=$(top_dir)/../prerequisites/host-libs/usr \
+	--with-mpfr=$(top_dir)/../prerequisites/host-libs/usr \
+	--with-mpc=$(top_dir)/../prerequisites/host-libs/usr \
+	--with-isl=$(top_dir)/../prerequisites/host-libs/usr \
+	--with-libelf=$(top_dir)/../prerequisites/host-libs/usr \
+	"--with-host-libstdcxx=-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm" \
+	"--with-pkgversion=$(deb_version)" \
+	$(MULTILIB_LIST) \
+	$(buildflags) \
+	$(target_tools)
+
+%:
+	dh $@ -D$(src_dir) -B$(build_dir) --with autotools-dev --parallel --with autoreconf
+
+$(unpack_stamp): $(tar_stamp)
+	set -ex; \
+		for patch in debian/patches/[0-9]*.patch; do \
+			echo Applying patch "$$patch"; \
+			patch -p1 < "$$patch"; \
+		done
+	touch $@
+
+$(tar_stamp):
+	tar xf $(gcc_dir)/gcc.tar.*
+	mkdir -p $(stampdir)
+	touch $@
+
+override_dh_autoreconf: $(unpack_stamp)
+	@echo "do not reconfigure with autoconf, that's way too painful"
+#	autoreconf2.64 -f -i $(src_dir)
+
+override_dh_auto_configure: $(unpack_stamp)
+	mkdir -p $(build_dir)
+	dh_auto_configure -D$(src_dir) -B$(build_dir) -- $(configure_flags)
+
+override_dh_auto_build:
+	dh_auto_build -D$(src_dir) -B$(build_dir) -- all-gcc
+
+override_dh_auto_clean:
+	rm -rf $(src_dir) $(build_dir) debian/tmp $(stampdir)
+	dh_autoreconf_clean
+
+override_dh_auto_test:
+	@echo "no testing, that's way too painful"
+#	dh_auto_test -D$(src_dir) -B$(build_dir) --max-parallel=1
+
+override_dh_gencontrol:
+	dh_gencontrol -a -- -v$(deb_version) -Vlocal:Version=$(deb_upstream_version) -Vgcc:Version=$(source_version)
+
+override_dh_auto_install:
+	mkdir -p $(top_dir)/debian/tmp
+	cd build && make install-gcc DESTDIR=$(top_dir)/debian/tmp
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(upstream_dir)/ChangeLog
+
+override_dh_compress:
+	dh_compress -Xexamples/
+
+override_dh_strip:
+	dh_strip -X.a

@@ -1,0 +1,1 @@
+gdb-microblaze: binary-without-manpage usr/bin/microblaze-xilinx-elf-run

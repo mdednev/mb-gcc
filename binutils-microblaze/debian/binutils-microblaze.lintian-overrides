@@ -1,0 +1,13 @@
+#
+# The tools use hardlinks from /usr/bin to /usr/lib/microblaze
+#
+binutils-microblaze binary: package-contains-hardlink
+#
+# Warnings about lines that can't be wrapped aren't errors, but
+# lintian can't tell that
+#
+binutils-microblaze binary: manpage-has-errors-from-man
+#
+# ld.bfd has no manual
+#
+binutils-microblaze binary: binary-without-manpage

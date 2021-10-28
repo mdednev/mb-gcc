@@ -1,0 +1,40 @@
+Source: gcc-microblaze
+Section: devel
+Priority: extra
+Maintainer: Max A. Dednev <mdednev@yandex.ru>
+Build-Depends:
+ autoconf2.64,
+ autogen,
+ autotools-dev,
+ binutils-microblaze,
+ bison,
+ debhelper (>= 8.0.0),
+ dh-autoreconf,
+ dejagnu,
+ flex,
+ gawk,
+ gettext,
+ libgmp-dev,
+ libmpc-dev,
+ libmpfr-dev,
+ libtool,
+ locales,
+ lsb-release,
+ lzma,
+ m4,
+ patchutils,
+ sharutils,
+ texinfo,
+ xz-utils,
+ zlib1g-dev
+Standards-Version: 3.9.5
+Homepage: http://gcc.gnu.org/
+X-Python-Version: >= 2.7
+
+Package: gcc-microblaze
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, binutils-microblaze
+Replaces: gcc-microblaze-bootstrap
+Recommends: libnewlib-microblaze-xilinx-elf
+Description: GCC cross compiler for Microblaze processors
+ Bare metal compiler for embedded Microblaze processors.

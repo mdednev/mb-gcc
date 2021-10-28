@@ -1,0 +1,42 @@
+Source: gdb-microblaze
+Section: devel
+Priority: extra
+Maintainer: Max A. Dednev <mdednev@yandex.ru>
+Build-Depends:
+ debhelper (>= 8.0.0),
+ autotools-dev,
+ bzip2,
+ lsb-release,
+# Other tool deps
+ autoconf,
+ libtool,
+ gettext,
+ bison,
+ flex | flex-old,
+ procps,
+ mig [hurd-any],
+ help2man,
+ python-dev,
+# TeX[info] deps
+ texinfo (>= 4.7-2.2),
+ texlive-base,
+# Libdev deps
+ libexpat1-dev,
+ libncurses5-dev,
+ libreadline-dev,
+ zlib1g-dev,
+ libbz2-dev,
+ liblzma-dev,
+ libkvm-dev [kfreebsd-any]
+Standards-Version: 3.9.5
+Homepage: http://www.gnu.org/s/gdb/
+
+Package: gdb-microblaze
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Recommends: gcc-microblaze
+Description: GNU debugger for Microblaze processors
+ Bare metal GNU debugger for embedded Microblaze processors. 
+ GDB is a source-level debugger, capable of breaking programs at any 
+ specific line, displaying variable values, and determining where 
+ errors occurred.

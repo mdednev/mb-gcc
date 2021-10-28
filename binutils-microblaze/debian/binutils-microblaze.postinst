@@ -1,0 +1,29 @@
+#! /bin/sh
+
+set -e
+
+for binary in addr2line \
+              ar        \
+              as        \
+              c++filt   \
+              elfedit   \
+              ld        \
+              ld.bfd    \
+              nm        \
+              objcopy   \
+              objdump   \
+              ranlib    \
+              readelf   \
+              size      \
+              strings   \
+              strip; do
+    update-alternatives --quiet --install \
+        /usr/bin/mb-${binary} mb-${binary} \
+        /usr/bin/microblaze-xilinx-elf-${binary} 20
+done
+
+#DEBHELPER#
+
+exit 0
+
+# vim: set filetype=sh ts=4 sw=4 sts=4 et:

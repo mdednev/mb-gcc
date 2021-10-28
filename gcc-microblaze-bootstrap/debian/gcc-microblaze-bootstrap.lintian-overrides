@@ -1,0 +1,5 @@
+#
+# All of the libgcc bits are non-native, which is kinda the point
+#
+gcc-microblaze binary: binary-from-other-architecture
+gcc-microblaze binary: binary-without-manpage

@@ -1,0 +1,150 @@
+#! /usr/bin/env bash
+
+set -e
+set -x
+set -u
+set -o pipefail
+
+umask 022
+
+exec < /dev/null
+
+TARGET=arm-none-eabi
+
+# Set variables according to real environment 
+uname_string=`uname | sed 'y/LINUXDARWIN/linuxdarwin/'`
+host_arch=`uname -m | sed 'y/XI/xi/'`
+if [ "x$uname_string" == "xlinux" ] ; then
+	BUILD="$host_arch"-linux-gnu
+	HOST_NATIVE="$host_arch"-linux-gnu
+	JOBS=`grep ^processor /proc/cpuinfo|wc -l`
+else
+	echo "Unsupported build system : $uname_string"
+	exit 1
+fi
+
+PACKAGES='
+	 zlib
+ 	 gmp
+	 mpfr
+	 mpc
+	 isl
+	 libelf
+	 expat
+	 '
+# 20190725: cloog was removed from PACKAGES list due to following note:
+# Version 0.13 (or later) of ISL is incompatible with the current CLooG 0.18.1 release (and older).
+# Use version 0.12.2 of ISL or the build will fail. 
+
+base_path=`cd $(dirname $0) && pwd -P`
+install_dir=${base_path}/host-libs
+
+rm -rf ${install_dir}
+
+for pkg in ${PACKAGES}; do
+	echo "Building \"${pkg}\" package."
+	pkg_archive=`find ${base_path} -maxdepth 1 -type f -name "${pkg}*.tar.*" | tail -n 1`
+
+	echo " => unpacking \"$(basename ${pkg_archive})\" package file."
+	pkg_srcdirname=`find ${base_path} -maxdepth 1 -type d -name "${pkg}-*" | tail -n 1`
+	[ -e ${pkg_srcdirname} ] && rm -rf ${pkg_srcdirname}
+	tar xf ${pkg_archive} -C ${base_path}
+
+	pkg_srcdirname=`find ${base_path} -maxdepth 1 -type d -name "${pkg}-*" | tail -n 1`
+	echo " => building in \"$(basename ${pkg_srcdirname})\" source directory."
+
+	cppflags=""
+	configure_flags=""
+	case ${pkg} in
+	*zlib*) 
+		configure_flags="--static --prefix=${install_dir}/zlib"
+		;;
+	*gmp*)
+		cppflags="-fexceptions"
+		configure_flags="
+			--build=$BUILD 
+			--host=$HOST_NATIVE
+			--prefix=${install_dir}/usr
+			--enable-cxx
+			--disable-shared
+			--disable-nls
+			"
+		;;
+	*mpfr*)
+		configure_flags="
+			--build=$BUILD
+			--host=$HOST_NATIVE
+			--target=$TARGET
+			--prefix=${install_dir}/usr
+			--disable-shared
+			--disable-nls
+			--with-gmp=${install_dir}/usr
+			"
+		;;
+	*mpc*)
+		configure_flags="
+			--build=$BUILD
+			--host=$HOST_NATIVE
+			--target=$TARGET
+			--prefix=${install_dir}/usr
+			--disable-shared
+			--disable-nls
+			--with-gmp=${install_dir}/usr
+			--with-mpfr=${install_dir}/usr
+			"
+		;;
+	*isl*)
+		configure_flags="
+			--build=$BUILD
+			--host=$HOST_NATIVE
+			--target=$TARGET
+			--prefix=${install_dir}/usr
+			--disable-shared
+			--disable-nls
+			--with-gmp-prefix=${install_dir}/usr
+			"
+		;;
+	*cloog*)
+		configure_flags="
+			--build=$BUILD
+			--host=$HOST_NATIVE
+			--target=$TARGET
+			--prefix=${install_dir}/usr
+			--disable-shared
+			--disable-nls
+			--with-bits=gmp
+			--with-host-libstdcxx='-lstdc++'   
+			--with-gmp-prefix=${install_dir}/usr
+			--with-isl-prefix=${install_dir}/usr
+			"
+		;;
+	*libelf* | *expat*)
+		configure_flags="
+			--build=$BUILD
+			--host=$HOST_NATIVE
+			--target=$TARGET
+			--prefix=${install_dir}/usr
+			--disable-shared
+			--disable-nls
+			"
+		;;
+	*)	
+		echo "Unknown package ${pkg}. Exiting."
+		exit 1
+		;;
+	esac
+
+	# Build selected package
+	(	
+		cd ${pkg_srcdirname}
+		CPPFLAGS=${cppflags} ./configure ${configure_flags}
+		make -j${JOBS}
+		make install
+	)
+done 2>&1 | tee build.log
+        
+# Exit if build cycle (first PIPE stage) failed to complete
+[ ${PIPESTATUS[0]} != 0 ] && exit ${PIPESTATUS[0]}
+
+echo "Build process completed successfully." 2>&1 | tee -a build.log
+

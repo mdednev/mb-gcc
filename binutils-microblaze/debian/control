@@ -1,0 +1,25 @@
+Source: binutils-microblaze
+Section: devel
+Priority: extra
+Maintainer: Max A. Dednev <mdednev@yandex.ru>
+Build-Depends:
+ debhelper (>= 8.0.0),
+ autotools-dev,
+ bison,
+ flex,
+ gettext,
+ texinfo,
+ dejagnu (>= 1.4.2-1.1),
+ file,
+ xz-utils,
+ lsb-release
+Standards-Version: 3.9.5
+HomePage: https://sourceware.org/binutils/
+
+Package: binutils-microblaze
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: GNU assembler, linker and binary utilities for Microblaze processors
+ Bare metal binutils for embedded Microblaze processors. The programs in this 
+ package are used to manipulate binary and object files that may have been 
+ created for Microblaze architecture.

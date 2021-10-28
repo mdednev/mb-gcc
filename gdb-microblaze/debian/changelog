@@ -1,0 +1,5 @@
+gdb-microblaze (9.2-2021-0623) stable; urgency=medium
+
+  * Update, based on Xilinx 2021-0623 sources
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Tue, 26 Oct 2021 15:58:55 +0300

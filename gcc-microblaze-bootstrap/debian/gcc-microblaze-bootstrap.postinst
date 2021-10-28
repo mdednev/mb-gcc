@@ -1,0 +1,23 @@
+#! /bin/sh
+
+set -e
+
+for binary in cpp        \
+              gcc        \
+              gcc-ar     \
+              gcc-nm     \
+              gcc-ranlib \
+              gcov       \
+              gcov-dump  \
+              gcov-tool  \
+              lto-dump;  do
+    update-alternatives --quiet --install \
+        /usr/bin/mb-${binary} mb-${binary} \
+        /usr/bin/microblaze-xilinx-elf-${binary} 20
+done
+
+#DEBHELPER#
+
+exit 0
+
+# vim: set filetype=sh ts=4 sw=4 sts=4 et:

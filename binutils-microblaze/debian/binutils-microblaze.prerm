@@ -1,0 +1,28 @@
+#! /bin/sh -e
+
+if [ $1 != "upgrade" ]; then
+    for binary in addr2line \
+                  ar        \
+                  as        \
+                  c++filt   \
+                  elfedit   \
+                  ld        \
+                  ld.bfd    \
+                  nm        \
+                  objcopy   \
+                  objdump   \
+                  ranlib    \
+                  readelf   \
+                  size      \
+                  strings   \
+                  strip; do
+        update-alternatives --quiet --remove \
+            mb-${binary} /usr/bin/microblaze-xilinx-elf-${binary}
+    done
+fi
+
+#DEBHELPER#
+
+exit 0
+
+# vim: set filetype=sh ts=4 sw=4 sts=4 et:

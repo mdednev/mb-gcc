@@ -1,0 +1,24 @@
+diff -Naur a/binutils/ld/Makefile.am b/binutils/ld/Makefile.am
+--- a/binutils/ld/Makefile.am	2016-02-06 08:46:36.000000000 +0300
++++ b/binutils/ld/Makefile.am	2016-08-22 10:32:18.134881238 +0300
+@@ -57,7 +57,7 @@
+ # We put the scripts in the directory $(scriptdir)/ldscripts.
+ # We can't put the scripts in $(datadir) because the SEARCH_DIR
+ # directives need to be different for native and cross linkers.
+-scriptdir = $(tooldir)/lib
++scriptdir = $(libdir)
+ 
+ EMUL = @EMUL@
+ EMULATION_OFILES = @EMULATION_OFILES@
+diff -Naur a/binutils/ld/Makefile.in b/binutils/ld/Makefile.in
+--- a/binutils/ld/Makefile.in	2016-02-06 08:46:36.000000000 +0300
++++ b/binutils/ld/Makefile.in	2016-08-22 10:32:25.162881452 +0300
+@@ -413,7 +413,7 @@
+ # We put the scripts in the directory $(scriptdir)/ldscripts.
+ # We can't put the scripts in $(datadir) because the SEARCH_DIR
+ # directives need to be different for native and cross linkers.
+-scriptdir = $(tooldir)/lib
++scriptdir = $(libdir)
+ BASEDIR = $(srcdir)/..
+ BFDDIR = $(BASEDIR)/bfd
+ INCDIR = $(BASEDIR)/include

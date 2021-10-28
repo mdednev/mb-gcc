@@ -1,0 +1,5 @@
+binutils-microblaze (2.35-2021-0623) stable; urgency=medium
+
+  * New version based on binutils-2_35-branch
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Sun, 24 Oct 2021 21:56:00 +0300

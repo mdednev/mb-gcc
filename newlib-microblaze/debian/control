@@ -1,0 +1,64 @@
+Source: newlib
+Section: devel
+Priority: extra
+Maintainer: Max A. Dednev <mdednev@yandex.ru>
+Build-Depends:
+ debhelper (>= 9),
+ texinfo,
+ dpkg-dev (>= 1.16.0),
+ autotools-dev,
+ dejagnu,
+ gcc-microblaze-bootstrap,
+ xz-utils
+Standards-Version: 3.9.5
+Homepage: https://sourceware.org/newlib/
+
+Package: libnewlib-microblaze-dev
+Architecture: all
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libnewlib0
+Replaces: libnewlib0
+Suggests: libnewlib-microblaze, gcc-microblaze
+Description: C library and math library intended for use on embedded systems
+ Newlib is a C library and math library intended for use on embedded systems.
+ It is a conglomeration of several library parts, all under free software
+ licenses that make them easily usable on embedded products.
+ .
+ This package contains the newlib headers.
+
+Package: libnewlib-microblaze-doc
+Architecture: all
+Section: doc
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: libnewlib-microblaze-dev
+Description: C library and math library intended for use on embedded systems (doc)
+ Newlib is a C library and math library intended for use on embedded systems.
+ It is a conglomeration of several library parts, all under free software
+ licenses that make them easily usable on embedded products.
+ .
+ This package contains the newlib documentation.
+
+Package: libnewlib-microblaze
+Architecture: all
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}, libnewlib-microblaze-dev
+Recommends: gcc-microblaze, libstdc++-microblaze-newlib
+Suggests: libnewlib-microblaze-doc
+Description: C library and math library compiled for bare metal Microblaze
+ Newlib is a C library and math library intended for use on embedded systems.
+ It is a conglomeration of several library parts, all under free software
+ licenses that make them easily usable on embedded products.
+ .
+ This package contains the newlib library compiled for Microblaze target.
+
+Package: newlib-source
+Architecture: all
+Recommends: xz-utils
+Depends: ${misc:Depends}
+Description: C library and math library intended for use on embedded systems (source)
+ Newlib is a C library and math library intended for use on embedded systems.
+ It is a conglomeration of several library parts, all under free software
+ licenses that make them easily usable on embedded products.
+ .
+ This package contains the newlib library source tarball.

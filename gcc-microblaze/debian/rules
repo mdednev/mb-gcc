@@ -29,60 +29,65 @@ export DEB_LDFLAGS_APPEND  = -L$(top_dir)/../prerequisites/host-libs/zlib/lib \
 export DEB_BUILD_MAINT_OPTIONS=hardening=-format,-stackprotectorstrong
 buildflags=$(dpkg-buildflags --export=configure) INHIBIT_LIBC_CFLAGS="-DUSE_TM_CLONE_REGISTRY=0"
 
-target_tools=\
-	AR_FOR_TARGET=$(target)-ar \
-	AS_FOR_TARGET=$(target)-as \
-	LD_FOR_TARGET=$(target)-ld \
-	NM_FOR_TARGET=$(target)-nm \
+target_cflags   := CFLAGS_FOR_TARGET="-g -O2 -ffunction-sections -fdata-sections"
+target_cxxflags := CXXFLAGS_FOR_TARGET="-g -O2 -ffunction-sections -fdata-sections"
+
+target_tools =                               \
+	AR_FOR_TARGET=$(target)-ar           \
+	AS_FOR_TARGET=$(target)-as           \
+	LD_FOR_TARGET=$(target)-ld           \
+	NM_FOR_TARGET=$(target)-nm           \
 	OBJDUMP_FOR_TARGET=$(target)-objdump \
-	RANLIB_FOR_TARGET=$(target)-ranlib \
+	RANLIB_FOR_TARGET=$(target)-ranlib   \
 	READELF_FOR_TARGET=$(target)-readelf \
 	STRIP_FOR_TARGET=$(target)-strip
 
-configure_flags = \
-	--build=$(DEB_BUILD_GNU_TYPE) \
-	--host=$(DEB_HOST_GNU_TYPE) \
-	--target=$(target) \
-	--prefix=/usr/lib \
-	--infodir=/usr/share/doc/$(package)/info \
-	--mandir=/usr/share/man \
-	--htmldir=/usr/share/doc/$(package)/html \
-	--pdfdir=/usr/share/doc/$(package)/pdf \
-	--bindir=/usr/bin \
-	--libexecdir=/usr/lib \
-	--libdir=/usr/lib \
-	--enable-languages=c,c++ \
-	--disable-__cxa_atexit \
-	--enable-lto \
-	--enable-target-optspace \
-	--without-long-double-128 \
-        --enable-plugins \
-        --disable-decimal-float \
-        --disable-libffi \
-        --disable-libgomp \
-        --disable-libmudflap \
-        --disable-libquadmath \
-        --disable-libssp \
-        --disable-libstdcxx-pch \
-        --disable-nls \
-        --disable-shared \
-        --disable-threads \
-        --disable-tls \
-        --with-gnu-as \
-        --with-gnu-ld \
-        --with-newlib \
-        --with-headers=yes \
-	--with-python-dir=share/gcc-arm-none-eabi \
-	--with-sysroot=/usr/lib/$(target) \
-	--with-gmp=$(top_dir)/../prerequisites/host-libs/usr \
-	--with-mpfr=$(top_dir)/../prerequisites/host-libs/usr \
-	--with-mpc=$(top_dir)/../prerequisites/host-libs/usr \
-	--with-isl=$(top_dir)/../prerequisites/host-libs/usr \
-	--with-libelf=$(top_dir)/../prerequisites/host-libs/usr \
+configure_flags =                                                                  \
+	--build=$(DEB_BUILD_GNU_TYPE)                                              \
+	--host=$(DEB_HOST_GNU_TYPE)                                                \
+	--target=$(target)                                                         \
+	--prefix=/usr/lib                                                          \
+	--infodir=/usr/share/doc/$(package)/info                                   \
+	--mandir=/usr/share/man                                                    \
+	--htmldir=/usr/share/doc/$(package)/html                                   \
+	--pdfdir=/usr/share/doc/$(package)/pdf                                     \
+	--bindir=/usr/bin                                                          \
+	--libexecdir=/usr/lib                                                      \
+	--libdir=/usr/lib                                                          \
+	--enable-languages=c,c++                                                   \
+	--disable-__cxa_atexit                                                     \
+	--enable-lto                                                               \
+	--enable-target-optspace                                                   \
+	--without-long-double-128                                                  \
+        --enable-plugins                                                           \
+        --disable-decimal-float                                                    \
+        --disable-libffi                                                           \
+        --disable-libgomp                                                          \
+        --disable-libmudflap                                                       \
+        --disable-libquadmath                                                      \
+        --disable-libssp                                                           \
+        --disable-libstdcxx-pch                                                    \
+        --disable-nls                                                              \
+        --disable-shared                                                           \
+        --disable-threads                                                          \
+        --disable-tls                                                              \
+        --with-gnu-as                                                              \
+        --with-gnu-ld                                                              \
+        --with-newlib                                                              \
+        --with-headers=yes                                                         \
+	--with-python-dir=share/gcc-arm-none-eabi                                  \
+	--with-sysroot=/usr/lib/$(target)                                          \
+	--with-gmp=$(top_dir)/../prerequisites/host-libs/usr                       \
+	--with-mpfr=$(top_dir)/../prerequisites/host-libs/usr                      \
+	--with-mpc=$(top_dir)/../prerequisites/host-libs/usr                       \
+	--with-isl=$(top_dir)/../prerequisites/host-libs/usr                       \
+	--with-libelf=$(top_dir)/../prerequisites/host-libs/usr                    \
 	"--with-host-libstdcxx=-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm" \
-	"--with-pkgversion=$(deb_version)" \
-	$(MULTILIB_LIST) \
-	$(buildflags) \
+	"--with-pkgversion=$(deb_version)"                                         \
+	$(MULTILIB_LIST)                                                           \
+	$(buildflags)                                                              \
+	$(target_cflags)                                                           \
+	$(target_cxxflags)                                                         \
 	$(target_tools)
 
 %:

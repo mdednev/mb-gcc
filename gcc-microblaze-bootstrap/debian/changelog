@@ -1,3 +1,9 @@
+gcc-microblaze-bootstrap (10.2.0-2021-0623+1) stable; urgency=medium
+
+  * Added -O2 for target libraries compilation flags (C/C++).
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Wed, 07 Nov 2021 22:11:06 +0300
+
 gcc-microblaze-bootstrap (10.2.0-2021-0623) stable; urgency=medium
 
   * Update, based on Xilinx 2021-0623 sources

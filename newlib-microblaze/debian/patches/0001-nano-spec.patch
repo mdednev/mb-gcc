@@ -1,0 +1,56 @@
+diff -Naur a/newlib/libgloss/microblaze/Makefile.in b/newlib/libgloss/microblaze/Makefile.in
+--- a/newlib/libgloss/microblaze/Makefile.in	2020-11-17 10:51:12.000000000 +0300
++++ b/newlib/libgloss/microblaze/Makefile.in	2021-11-08 14:18:05.805130710 +0300
+@@ -91,6 +91,8 @@
+ LINUX_OBJS   += linux-outbyte.o linux-inbyte.o
+ LINUX_SCRIPTS = elf-gloss-linux.specs
+ 
++NANO_SCRIPTS=nano.specs
++
+ CPU = @CPU@
+ 
+ #### Host specific Makefile fragment comes in here.
+@@ -98,7 +100,7 @@
+ 
+ all: ${CRT} ${LIB} ${LINUX_BSP}
+ 
+-install: ${CRT} ${LIB} install-linux
++install: ${CRT} ${LIB} install-linux install-nano
+ 	@for crt in ${CRT}; do \
+ 	$(INSTALL_PROGRAM) $${crt} $(DESTDIR)$(tooldir)/lib${MULTISUBDIR}/$${crt}; \
+ 	done
+@@ -109,6 +111,9 @@
+ 	$(INSTALL_PROGRAM) ${LINUX_BSP} $(DESTDIR)$(tooldir)/lib${MULTISUBDIR}
+ 	set -e; for x in ${LINUX_SCRIPTS}; do ${INSTALL_DATA} ${srcdir}/${objtype}$$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
+ 
++install-nano:
++	set -e; for x in ${NANO_SCRIPTS}; do ${INSTALL_DATA} ${srcdir}/${objtype}$$x $(DESTDIR)${tooldir}/lib${MULTISUBDIR}/$$x; done
++
+ crt0.o:	crt0.S
+ crt1.o:	crt1.S
+ crt2.o:	crt2.S
+diff -Naur a/newlib/libgloss/microblaze/nano.specs b/newlib/libgloss/microblaze/nano.specs
+--- a/newlib/libgloss/microblaze/nano.specs	1970-01-01 03:00:00.000000000 +0300
++++ b/newlib/libgloss/microblaze/nano.specs	2021-11-08 14:29:47.430994256 +0300
+@@ -0,0 +1,21 @@
++%rename link                nano_link
++%rename link_gcc_c_sequence nano_link_gcc_c_sequence
++%rename cpp_unique_options  nano_cpp_unique_options
++
++*cpp_unique_options:
++-isystem =/include/newlib-nano %(nano_cpp_unique_options)
++
++*nano_libc:
++-lc_nano
++
++*nano_libgloss:
++%{specs=nosys.specs:-lnosys} %{!specs=nosys.specs:-lgloss_nano}
++
++*link_gcc_c_sequence:
++%(nano_link_gcc_c_sequence) --start-group %G %(nano_libc) %(nano_libgloss) --end-group
++
++*link:
++%(nano_link) %:replace-outfile(-lc -lc_nano) %:replace-outfile(-lg -lg_nano)
++
++*lib:
++%{!shared:%{g*:-lg_nano} %{!p:%{!pg:-lc_nano}}%{p:-lc_p}%{pg:-lc_p}}

@@ -1,3 +1,17 @@
+newlib (3.3.0-2021-0623+2) stable; urgency=medium
+
+  * Added nano.specs configuration file.
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Mon, 08 Nov 2021 14:36:43 +0300
+
+newlib (3.3.0-2021-0623+1) stable; urgency=medium
+
+  * Added --disable-newlib-reent-check-verify configuration option. 
+  * Fixed target build CFLAGS (CFLAGS => CFLAGS_FOR_TARGET).
+  * Added PREFER_SIZE_OVER_SPEED define for nano-build.
+
+ -- Max A. Dednev <mdednev@yandex.ru>  Wed, 03 Nov 2021 20:42:07 +0300
+
 newlib (3.3.0-2021-0623) stable; urgency=medium
 
   * Update, based on Xilinx 2021-0623 sources

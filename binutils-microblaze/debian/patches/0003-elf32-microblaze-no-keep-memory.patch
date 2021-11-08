@@ -1,0 +1,86 @@
+diff -Naur a/binutils/bfd/elf32-microblaze.c b/binutils/bfd/elf32-microblaze.c
+--- a/binutils/bfd/elf32-microblaze.c	2021-04-20 18:52:06.000000000 +0300
++++ b/binutils/bfd/elf32-microblaze.c	2021-11-08 11:46:30.879317612 +0300
+@@ -1843,10 +1843,8 @@
+ {
+   Elf_Internal_Shdr *symtab_hdr;
+   Elf_Internal_Rela *internal_relocs;
+-  Elf_Internal_Rela *free_relocs = NULL;
+   Elf_Internal_Rela *irel, *irelend;
+   bfd_byte *contents = NULL;
+-  bfd_byte *free_contents = NULL;
+   int rel_count;
+   unsigned int shndx;
+   int i, sym_index;
+@@ -1888,8 +1886,6 @@
+   internal_relocs = _bfd_elf_link_read_relocs (abfd, sec, NULL, NULL, link_info->keep_memory);
+   if (internal_relocs == NULL)
+     goto error_return;
+-  if (! link_info->keep_memory)
+-    free_relocs = internal_relocs;
+ 
+   sec->relax = (struct relax_table *) bfd_malloc ((sec->reloc_count + 1)
+ 						  * sizeof (struct relax_table));
+@@ -1917,7 +1913,6 @@
+ 	      contents = (bfd_byte *) bfd_malloc (sec->size);
+ 	      if (contents == NULL)
+ 		goto error_return;
+-	      free_contents = contents;
+ 
+ 	      if (!bfd_get_section_contents (abfd, sec, contents,
+ 					     (file_ptr) 0, sec->size))
+@@ -2445,25 +2440,26 @@
+ 	}
+ 
+       elf_section_data (sec)->relocs = internal_relocs;
+-      free_relocs = NULL;
+ 
+       elf_section_data (sec)->this_hdr.contents = contents;
+-      free_contents = NULL;
+ 
+       symtab_hdr->contents = (bfd_byte *) isymbuf;
+     }
+ 
+-  free (free_relocs);
+-  free_relocs = NULL;
++  if (internal_relocs != NULL
++      && elf_section_data (sec)->relocs != internal_relocs)
++    free (internal_relocs);
+ 
+-  if (free_contents != NULL)
++  if (contents != NULL
++      && elf_section_data (sec)->this_hdr.contents != contents)
+     {
+-      if (!link_info->keep_memory)
+-	free (free_contents);
++      if (! link_info->keep_memory)
++	free (contents);
+       else
+-	/* Cache the section contents for elf_link_input_bfd.  */
+-	elf_section_data (sec)->this_hdr.contents = contents;
+-      free_contents = NULL;
++	{
++	  /* Cache the section contents for elf_link_input_bfd.  */
++	  elf_section_data (sec)->this_hdr.contents = contents;
++	}
+     }
+ 
+   if (sec->relax_count == 0)
+@@ -2477,8 +2473,15 @@
+   return TRUE;
+ 
+  error_return:
+-  free (free_relocs);
+-  free (free_contents);
++  if (isymbuf != NULL
++      && symtab_hdr->contents != (unsigned char *) isymbuf)
++    free (isymbuf);
++  if (internal_relocs != NULL
++      && elf_section_data (sec)->relocs != internal_relocs)
++    free (internal_relocs);
++  if (contents != NULL
++      && elf_section_data (sec)->this_hdr.contents != contents)
++    free (contents);
+   free (sec->relax);
+   sec->relax = NULL;
+   sec->relax_count = 0;

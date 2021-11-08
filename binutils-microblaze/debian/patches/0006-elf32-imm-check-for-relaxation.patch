@@ -1,0 +1,15 @@
+diff -Naur a/binutils/bfd/elf32-microblaze.c b/binutils/bfd/elf32-microblaze.c
+--- a/binutils/bfd/elf32-microblaze.c	2021-11-08 17:14:28.790299312 +0300
++++ b/binutils/bfd/elf32-microblaze.c	2021-11-08 17:16:56.412423731 +0300
+@@ -1976,7 +1976,10 @@
+       else
+ 	symval += irel->r_addend;
+ 
+-      if ((symval & 0xffff8000) == 0)
++      /* Check for imm command argument value to decide if
++       * we need full 32-bit value for next command */
++      if ((symval & 0xffff8000) == 0
++	  || (symval & 0xffff8000) == 0xffff8000)
+ 	{
+ 	  /* We can delete this instruction.  */
+ 	  sec->relax[sec->relax_count].addr = irel->r_offset;

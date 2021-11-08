@@ -9,7 +9,7 @@ umask 022
 
 exec < /dev/null
 
-TARGET=arm-none-eabi
+TARGET=microblaze-xilinx-elf
 
 # Set variables according to real environment 
 uname_string=`uname | sed 'y/LINUXDARWIN/linuxdarwin/'`

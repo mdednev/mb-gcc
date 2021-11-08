@@ -1,0 +1,48 @@
+#!/bin/bash
+
+cwd=$(pwd)
+script_path=$(cd $(dirname $0); pwd)
+
+set -e
+
+cd ${script_path}
+
+if [ ! -e ./prerequisites/build-stamp ]; then
+    pushd prerequisites
+    ./build-prerequisites
+    touch build-stamp
+    popd
+fi
+
+packages="binutils-microblaze \
+         gcc-microblaze-bootstrap \
+         newlib-microblaze \
+         gcc-microblaze \
+         gdb-microblaze"
+
+ncores=$(grep -c ^processor /proc/cpuinfo || echo 1)
+arch=$(dpkg --print-architecture)
+
+for pkg in ${packages}; do
+    grep ^${pkg}\$ ./build-stamp >/dev/null 2>&1 && continue
+
+    pushd ${pkg}
+    nice -n 19 dpkg-buildpackage -rfakeroot -uc -us -j${ncores}
+    pkg_version=$(dpkg-parsechangelog | sed -n 's/^Version: //p')
+    popd
+
+    case ${pkg} in
+    newlib-*)
+        echo sudo dpkg -i $(ls -1 lib${pkg}*${pkg_version}*.deb | grep -v doc_)
+        ;;
+    *)
+        echo sudo dpkg -i ${pkg}_${pkg_version}_${arch}.deb
+        ;;
+    esac
+
+    echo ${pkg} >> build-stamp
+done
+
+echo "Build succeded."
+
+# vim: set filetype=sh ts=4 sw=4 sts=4 et:

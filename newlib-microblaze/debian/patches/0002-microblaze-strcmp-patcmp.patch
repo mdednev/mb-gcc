@@ -1,0 +1,12 @@
+diff -Naur a/newlib/newlib/libc/machine/microblaze/strcmp.c b/newlib/newlib/libc/machine/microblaze/strcmp.c
+--- a/newlib/newlib/libc/machine/microblaze/strcmp.c	2021-11-10 15:55:59.262380641 +0300
++++ b/newlib/newlib/libc/machine/microblaze/strcmp.c	2021-11-10 15:54:54.889475495 +0300
+@@ -212,7 +212,7 @@
+         bnei    r7, end_cmp                                                     \n\
+         beqi    r3, end_cmp                                                     \n\
+         brid    regular_strcmp                                                  \n\
+-        addik	r9, r9, 1
++        addik	r9, r9, 1                                                        \n\
+ end_cmp:                                                                        \n\
+         rtsd    r15, 8                                                          \n\
+         or      r3, r0, r7              /* Return strcmp result */");

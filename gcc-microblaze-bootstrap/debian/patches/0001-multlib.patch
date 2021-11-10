@@ -1,0 +1,93 @@
+diff -Naur a/gcc/gcc/config/microblaze/t-microblaze b/gcc/gcc/config/microblaze/t-microblaze
+--- a/gcc/gcc/config/microblaze/t-microblaze	2021-11-10 08:22:10.023119782 +0300
++++ b/gcc/gcc/config/microblaze/t-microblaze	2021-11-10 08:24:07.884829794 +0300
+@@ -1,16 +1,52 @@
+-MULTILIB_OPTIONS = m64 mxl-barrel-shift mlittle-endian mno-xl-soft-mul mxl-multiply-high
+-MULTILIB_DIRNAMES = m64 bs le m mh
+-MULTILIB_EXCEPTIONS = *m64/mxl-multiply-high mxl-multiply-high
+-MULTILIB_EXCEPTIONS += *m64
+-MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift
+-MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul
+-MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mno-xl-soft-mul
+-MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul
+-MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mno-xl-soft-mul/mxl-multiply-high
+-MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul/mxl-multiply-high
+-MULTILIB_EXCEPTIONS += *mxl-barrel-shift/mxl-multiply-high mxl-multiply-high
+-MULTILIB_EXCEPTIONS += *mlittle-endian/mxl-multiply-high mxl-multiply-high
+-MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mlittle-endian/mxl-multiply-high
++MULTILIB_OPTIONS    = mlittle-endian m64 mxl-barrel-shift mxl-pattern-compare mno-xl-soft-mul mhard-float
++MULTILIB_DIRNAMES   = le m64 bs p m fpd mh
++MULTILIB_REQUIRED   = mlittle-endian
++MULTILIB_REQUIRED  += mxl-barrel-shift
++MULTILIB_REQUIRED  += mxl-pattern-compare
++MULTILIB_REQUIRED  += mno-xl-soft-mul
++MULTILIB_REQUIRED  += mhard-float
++MULTILIB_REQUIRED  += mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mxl-pattern-compare/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mxl-barrel-shift/mxl-pattern-compare
++MULTILIB_REQUIRED  += mxl-barrel-shift/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mxl-barrel-shift/mhard-float
++MULTILIB_REQUIRED  += mxl-barrel-shift/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mxl-barrel-shift/mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift
++MULTILIB_REQUIRED  += mlittle-endian/mxl-pattern-compare
++MULTILIB_REQUIRED  += mlittle-endian/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-pattern-compare/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mxl-pattern-compare
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-pattern-compare
++MULTILIB_REQUIRED  += mlittle-endian/m64/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/m64/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-pattern-compare/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mxl-pattern-compare
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mno-xl-soft-mul/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mxl-pattern-compare/mhard-float
++MULTILIB_REQUIRED  += mlittle-endian/m64/mxl-barrel-shift/mxl-pattern-compare/mno-xl-soft-mul/mhard-float
+ 
+ # Extra files
+ microblaze-c.o: $(srcdir)/config/microblaze/microblaze-c.c \
+diff -Naur a/gcc/gcc/config/microblaze/t-microblaze~ b/gcc/gcc/config/microblaze/t-microblaze~
+--- a/gcc/gcc/config/microblaze/t-microblaze~	1970-01-01 03:00:00.000000000 +0300
++++ b/gcc/gcc/config/microblaze/t-microblaze~	2021-11-10 08:22:14.491184637 +0300
+@@ -0,0 +1,20 @@
++MULTILIB_OPTIONS = m64 mxl-barrel-shift mlittle-endian mno-xl-soft-mul mxl-multiply-high
++MULTILIB_DIRNAMES = m64 bs le m mh
++MULTILIB_EXCEPTIONS = *m64/mxl-multiply-high mxl-multiply-high
++MULTILIB_EXCEPTIONS += *m64
++MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift
++MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul
++MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mno-xl-soft-mul
++MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul
++MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mno-xl-soft-mul/mxl-multiply-high
++MULTILIB_EXCEPTIONS += *m64/mno-xl-soft-mul/mxl-multiply-high
++MULTILIB_EXCEPTIONS += *mxl-barrel-shift/mxl-multiply-high mxl-multiply-high
++MULTILIB_EXCEPTIONS += *mlittle-endian/mxl-multiply-high mxl-multiply-high
++MULTILIB_EXCEPTIONS += *m64/mxl-barrel-shift/mlittle-endian/mxl-multiply-high
++
++# Extra files
++microblaze-c.o: $(srcdir)/config/microblaze/microblaze-c.c \
++    $(srcdir)/config/microblaze/microblaze-protos.h \
++    $(CONFIG_H) $(SYSTEM_H) $(CPPLIB_H) $(TM_P_H) $(TREE_H) errors.h $(TM_H)
++	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
++	$(srcdir)/config/microblaze/microblaze-c.c
